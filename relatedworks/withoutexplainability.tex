@@ -1,0 +1,16 @@
+\subsection{Predictors for Credit Risk Prediction}
+
+    Recent works on credit risk prediction have focused on developing predictive algorithms to improve performance metrics, such as accuracy, area under the curve (AUC), Type II error, or F1-score.\\
+    
+    % Primero empezaré con aquellos que no explican pero tiene buenos resultados
+    % aruleba2025improved este trabajan con german y australian
+    In \cite{aruleba2025improved}, the authors proposed a stacked ensemble for credit risk prediction that combines Random Forests (RF), Logistic Regression (LR), and Convolutional Neural Networks (CNN). The results of these predictors are used as input features for a Multilayer Perceptron (MLP), which learns to combine them to produce the prediction. The authors used SMOTEENN \cite{batista2004study} to address class imbalance, and the stacked ensemble is compared against CNN, LR, MLP, and RF. After applying SMOTE-ENN to address class imbalance, the stacked ensemble consistently outperformed the individual predictors, achieving accuracies near 96\%.\\ 
+    
+    A comparative study of different predictors for credit risk prediction is presented in \cite{sundaravadivel2025optimizing}, including LR, RF, and Artificial Neural Networks (ANN). In this study, SMOTE \cite{chawla2002smote} was employed to balance the training dataset, leading to significant improvements in the performance metrics of all predictors. Among them, RF achieved the best results, with an accuracy of 98\%.\\
+
+    In \cite{kandi2025evaluating}, Deep Convolutional Neural Networks (DCNN) and Support Vector Regression (SVR) were compared for credit risk prediction. The application of SMOTE contributed to improved predictive performance in both predictors. Using SMOTE to balance the dataset, SVR achieved an accuracy of 98\% and F1-score of 87\%.\\
+    
+    In \cite{zou2025level}, the authors present the Level-Wise Feature-Guided Cascading Ensembles (LFGCE) model, which integrates hierarchical feature selection with a cascading ensemble learning scheme. To evaluate its performance, several predictors were employed, including RF, Support Vector Machines (SVM), LR, Decision Trees (DT), ANN, Linear Discriminant Analysis (LDA), and XGBoost. Among these, XGBoost achieved the best results in both feature selection and prediction, with an AUC of 94\%. However, it is important to note that the study does not address class imbalance, as no data balancing methods were applied.\\ 
+
+    Most of the reviewed studies emphasise improving predictive performance through class balancing methods to mitigate data imbalance. Several predictors yield good results in credit risk prediction. However, the reported performance metrics (such as accuracy, AUC, and F1-score) vary significantly on the chosen predictors and balancing methods. Overall, the authors consistently point out that addressing class imbalance is crucial for achieving reliable predictions, with many studies reporting high accuracy values, often exceeding 90\%. %, tree-based predictors such as Random Forests and XGBoost achieve the best results.
+

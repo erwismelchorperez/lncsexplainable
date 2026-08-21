@@ -1,0 +1,44 @@
+\documentclass[runningheads]{llncs}
+\usepackage[T1]{fontenc}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{color}
+% uso de bibliografía
+\usepackage[maxbibnames=99, style=numeric-comp, sorting=none, backend=bibtex]{biblatex}
+\addbibresource{bibliografia/bibliografia.bib}
+\addbibresource{bibliografia/creditriskprediction.bib}
+\addbibresource{bibliografia/creditriskprediction_explainable.bib}
+\addbibresource{bibliografia/reviews.bib}
+\addbibresource{bibliografia/baseddecisiontree.bib}
+\usepackage[colorlinks=true, urlcolor=blue, linkcolor=red, citecolor=green,]{hyperref}
+\usepackage[english]{babel}
+\usepackage{amsmath}
+\usepackage[colorlinks=true, urlcolor=blue, linkcolor=red, citecolor=green]{hyperref}
+\usepackage{caption}
+
+\usepackage{tabularx}
+\usepackage{booktabs}
+\usepackage{array}
+\begin{document}
+	\title{An explainable algorithm for credit risk prediction based on contrast patterns}
+	\author{Erwis Melchor Pérez\inst{1}\orcidID{0000-1111-2222-3333} \and
+		José Francisco Martínez-Trinidad\inst{1}\orcidID{1111-2222-3333-4444} \and
+		Jesús Ariel Carrasco Ochoa\inst{1}\orcidID{2222--3333-4444-5555}}
+	
+	\authorrunning{Melchor E. et al.}
+
+	\institute{Instituto Nacional de Astrofísica, Óptica y Electrónica \email{\{emelchor,fmartine,ariel\}@inaoep.mx}}
+	
+	
+	\maketitle
+	\begin{abstract}
+		Resumen
+		\keywords{credit risk  \and pattern recognition \and clustering.}
+	\end{abstract}
+	
+	\input{introduction/introduction}
+	\input{relatedworks/relatedworks}
+	\input{explainablealgorithm/explainablealgorithm}
+	\input{results_discution/results_discusion}
+	\printbibliography
+\end{document}

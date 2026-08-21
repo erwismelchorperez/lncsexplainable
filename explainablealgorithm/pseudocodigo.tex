@@ -1,0 +1,61 @@
+\subsection{Pseudocode of the Proposed Algorithm}
+
+Algorithm~\ref{alg:pattern_explainable} outlines the main steps of the proposed explainable prediction method based on pattern extraction and functional decision trees.
+
+\begin{algorithm}[H]
+\caption{Explainable Credit Risk Prediction based on Patterns}
+\label{alg:pattern_explainable}
+\begin{algorithmic}[1]
+\REQUIRE Dataset $D$ with labeled instances $(X, y)$
+\ENSURE Predicted label and explanation for test instance $x^*$
+
+\STATE Split $D$ into training set $D_{train}$ and test set $D_{test}$
+\STATE Apply SMOTENC to balance $D_{train}$
+\STATE Train functional decision tree (FTC4cip) on $D_{train}$
+\STATE Predict label $\hat{y}^*$ for instance $x^*$ using FTC4cip
+
+\STATE \textbf{// Clustering and pattern extraction (offline)}
+\FOR{each class $c \in \{ \text{Defaulter}, \text{Non-Defaulter} \}$}
+    \STATE Select $D_{c}$ instances from $D_{train}$ with label $c$
+    \STATE Apply K-means (mixed-type) to obtain clusters $C_1^c, ..., C_k^c$
+    \FOR{each cluster $C_i^c$}
+        \STATE Extract frequent patterns $\mathcal{P}_i^c$ using a pattern mining algorithm
+        \STATE Apply redundancy filtering on $\mathcal{P}_i^c$
+    \ENDFOR
+\ENDFOR
+
+\STATE \textbf{// Explanation phase (online)}
+\STATE Assign $x^*$ to the nearest cluster $C_i^{\hat{y}^*}$
+\STATE Retrieve pattern set $\mathcal{P}_i^{\hat{y}^*}$
+\STATE Select explanation $p^* \in \mathcal{P}_i^{\hat{y}^*}$ such that $p^*$ covers $x^*$ and has the highest support
+
+\RETURN Predicted label $\hat{y}^*$ and explanation $p^*$
+\end{algorithmic}
+\end{algorithm}
+
+
+
+\subsection{Example of Extracted Pattern}
+
+Table~\ref{tab:example_pattern} shows a representative pattern extracted from the training data for the defaulter class. This pattern is human-readable and reflects the common characteristics of a risk group.
+
+\begin{table}[h]
+\centering
+\caption{Example of a frequent pattern explaining a credit risk prediction}
+\label{tab:example_pattern}
+\begin{tabular}{|l|l|}
+\hline
+\textbf{Feature} & \textbf{Condition} \\
+\hline
+Income & < \$1500 \\
+Employment status & Part-time \\
+Age & < 25 \\
+Credit history length & < 2 years \\
+Loan amount & > \$10,000 \\
+\hline
+\textbf{Predicted class} & Defaulter \\
+\hline
+\textbf{Support} & 12 instances (6.4\% of defaulters) \\
+\hline
+\end{tabular}
+\end{table}

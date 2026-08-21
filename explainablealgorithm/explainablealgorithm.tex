@@ -1,0 +1,55 @@
+\section{Proposed explainable algorithm}\label{sec:explainablealgorithm}
+% Boran Tae 
+        As discussed in the previous section, recent research has increasingly focused on explaining credit risk predictions. Techniques such as SHAP and LIME, commonly used for explaining credit risk predictions, assign importance scores to individual features; however, they do not capture the joint effect of multiple features in a prediction, which is particularly relevant in credit risk prediction. This limitation highlights the need for approaches that go beyond individual feature contributions and consider multiple features when explaining credit risk predictions.\newline
+
+    	The idea behind the proposed Pattern-based Credit Risk Prediction and Explanation (PbCRPE) algorithm is to enable both credit risk prediction and its explanation to rely on the same approach. Unlike traditional explainers for credit risk prediction, which apply a predictor that follows an approach different from the one used for explaining predictions (e.g., SHAP or LIME which are commonly based on individual feature contribution techniques), PbCRPE predicts and explains following a similar approach.\newline
+    	
+    	As mentioned previously, credit risk prediction depends on multiple features rather than individual features. For instance, a 'high debt-to-income ratio' may only indicate default when combined with 'low job stability'. This observation highlights the need for explanation approaches that consider multiple features. In this context, PbCRPE addresses this need by using contrast patterns to explain predictions. Contrast patterns allow providing explanations based on conjunctions of $feature\#value$ conditions, similar to those used by decision trees. This structural similarity motivates the use of a predictor based on decision trees, not only because of their alignment with contrast patterns, but also because of their strong performance in state-of-the-art credit risk prediction \cite{aruleba2025improved}. A decision tree can be interpreted as a hierarchy of decision rules, where each path from the root to a leaf node corresponds to a conjunction of conditions of the form $feature\#value$. Similarly, contrast patterns are expressed as conjunctions of conditions of the form $feature\#value$. Based on this relationship, the proposed algorithm is organized into two main stages: (i) a training stage, which includes predictor training and contrast pattern mining from the classes, and (ii) a prediction and explanation stage using the trained predictor and the mined contrast patterns.
+
+		\subsection{Training and contrast pattern mining stage}
+		{\color{blue}
+			The first stage of the PbCRPE consists of training a classifier for a credit risk predictor and mining contrast patterns, which are expressed as a conjunction of $feature\#value$ conditions that will later be used to explain the classifier's predictions. \newline 
+		}
+		
+		For credit risk prediction, we propose using the FT4cip predictor \cite{canete2022ft4cip}, a decision tree-based predictor capable of handling mixed and imbalanced datasets, which has reported strong predictive quality on such data, making it suitable for this task. Although FT4cip is designed to handle imbalanced datasets, the experiments conducted in this work indicated that it achieved better predictive quality when trained using a previously balanced training set. Thus, following the results reported in \cite{melchor2025oversampling}, we propose applying SMOTENC \cite{chawla2002smote, mukherjee2021smote} to the training set to balance it prior to predictor training.\newline
+		
+		{\color{blue}	
+		For mining contrast patterns, since instances belonging to the same class do not necessarily share the same $feature\#value$ groups of similar instances are first identified through clustering. Contrast patterns are subsequently mined independently for each cluster with respect to the whole opposite class, yielding contrast patterns that characterize instances in the class specific to both the cluster and its associated class. To generate these clusters, we propose using the Kmodes algorithm \cite{huang1997clustering, huang1998extensions}, as it is specifically designed for mixed data and avoids the limitations of distance-based methods when handling non-numeric features. To determine the number of clusters, following \cite{dinh2019estimating, kuswardana2025comparison}, we propose using the Silhouette coefficient, which, according to these works, enables the identification of well-defined clusters. 
+		}\newline 
+		
+		For mining contrast patterns, we propose using CPMining, introduced in the PBC4cip algorithm \cite{garcia2010lcmine, loyola2017pbc4cip}, as a supervised contrast pattern miner that explicitly exploits class differences to identify contrast patterns. CPMining is applied independently to each cluster by contrasting the instances of the cluster with all instances of the opposite class. This design allows mining contrast patterns that represent $feature\#value$ conditions observed among similar instances within each cluster while appearing less in instances from the opposite class.\newline
+		
+		Due to the large number of contrast patterns that can be generated during mining, the filtering used in CPMining is applied to reduce redundant patterns. This filtering removes more specific patterns when a more general pattern covers the same instances, and when redundant conditions are present within a pattern. Additionally, we propose removing contrast patterns whose support in the opposite class is non-zero. As a result, the final set contains only contrast patterns whose support in the opposite class is zero.
+		
+       \subsection{Prediction and explanation stage}
+       
+       Given a new instance $x$, the prediction and explanation stage first determines its class (defaulter or non-defaulter) using the trained FT4cip predictor. Once the predicted class $c$ for $x$ has been determined, the contrast patterns mined from each cluster associated with class $c$ are used to compute a similarity score between the new instance $x$ and each cluster. The cluster with the highest similarity score is selected as the cluster most similar to the new instance. \newline %A contrast pattern selected from this cluster constitutes the explanation of the prediction. \newline
+       
+       To identify the cluster that best represents a new instance $x$, PbCRPE defines a contrast pattern-based similarity score between $x$ and each cluster $C_{c,j}$ associated with the predicted class $c$. Unlike conventional similarity measures for mixed data, which compare instances directly using their feature values, the proposed score evaluates similarity through the contrast patterns mined from each cluster. These patterns summarize the characteristic combinations of $feature\#value$ conditions shared by similar instances within the cluster and associated with the predicted class, making them a more appropriate representation for explanation purposes. Consequently, the similarity between $x$ and a cluster is quantified according to the support accumulated by the cluster's contrast patterns that cover the new instance. Specifically, the similarity score is computed as the ratio between the accumulated support of the covering contrast patterns and the total support of all contrast patterns mined from the cluster, as defined in Equation~\ref{eq:cluster_similarity}.\newline
+             
+       \begin{equation}
+       	Sim(x, C_{c,j})
+       	=
+       	\frac{
+       		\sum\limits_{p \in \mathcal{P}_{c,j}(x)} supp(p)
+       	}{
+       		\sum\limits_{p \in \mathcal{P}_{c,j}} supp(p)
+       	},
+       	\label{eq:cluster_similarity}
+       \end{equation}
+       
+       This similarity score increases as the support of the contrast patterns covering the new instance increases. Since contrast patterns with higher support cover more similar instances within the cluster, they contribute more to the similarity score. Furthermore, dividing by the total support of the contrast patterns mined from the cluster avoids bias towards clusters with more contrast patterns. Consequently, higher similarity scores indicate that a larger proportion of the support of the contrast patterns mined from the cluster is associated with to contrast patterns that cover the new instance.\newline
+       
+{\color{blue}		       
+		The cluster with the highest similarity score is selected as the cluster most similar to the new instance $x$. If multiple clusters obtain the same highest similarity score, the cluster whose highest-support contrast pattern covering the new instance has the greatest support is selected. If a tie persists, the cluster whose corresponding highest-support contrast pattern contains the largest number of $feature\#value$ conditions is selected. This tie-breaking criterion favors the cluster whose covering contrast pattern has the greatest support and, when support is equal, provides the most specific combination of conditions. The explanation stage assumes that at least one contrast pattern mined from the clusters associated with the predicted class covers the new instance. Under this assumption, empirically validated later a Section \ref{sec:experimental}the most similar cluster always contains at least one covering contrast pattern. Once the most similar cluster $C_{c,j^*}$ has been identified, the contrast pattern $p^*$ with the highest support is selected from $\mathcal{P}_{c,j^*}(x)$, the set of contrast patterns from $C_{c,j^*}$ that cover the instance $x$, as defined in Equation~\ref{eq:pattern_selection}. Support is used as the selection criterion because contrast patterns with higher support cover a larger number of similar instances within the selected cluster, indicating that more instances share the same $feature\#value$ conditions.
+	}
+       
+       \begin{equation}
+       	p^* = \arg\max_{p \in \mathcal{P}_{c,j^*}(x)} supp(p),
+       	\label{eq:pattern_selection}
+       \end{equation}
+       
+		The selected contrast pattern becomes the final explanation of the prediction and is expressed as a conjunction of $feature\#value$ conditions. Since the selected contrast pattern covers multiple similar instances within the most similar cluster, the explanation is based on conditions shared by the new instance and those covered instances. If multiple patterns achieve the same maximum support, the pattern containing the largest number of $feature\#value$ conditions is selected, since it provides a more detailed explanation by incorporating a larger set of conditions associated with the covered instances. If multiple contrast patterns remain tied after applying this criterion, all tied contrast patterns will be the explanation. \\
+		
+		Unlike recent works, where explainability highlights individual features that contribute most to the prediction, showing how each affects the prediction in a positive or negative direction. In our proposal, explainability involves several features that jointly contribute to the prediction.
+       
