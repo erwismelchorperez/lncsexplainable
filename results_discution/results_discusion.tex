@@ -219,7 +219,6 @@ To illustrate the explanation process, Table~\ref{tab:example_instance} presents
 \end{table}
 
 For the instance shown in Table~\ref{tab:example_instance}, PbCRPE first considers the clusters associated with the predicted class. Using the contrast pattern-based similarity score defined in Equation~\ref{eq:cluster_similarity}, the cluster with the highest similarity to the new instance is selected. Subsequently, among the contrast patterns from the selected cluster that cover the new instance, the pattern with the highest support is selected according to the criterion defined in Equation~\ref{eq:pattern_selection}:
-
 \[
 \begin{aligned}
 	&\mathit{credit\_history} \neq \texttt{A34} \wedge
